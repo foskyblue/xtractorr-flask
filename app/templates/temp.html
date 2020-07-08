@@ -1,0 +1,9 @@
+<div class="alert alert-success" role="alert">
+  <h5>Results</h5>
+  <p>Total extracts: {{results_count}}</p>
+  {% for i in results %}
+  <ul>
+    <li>{{ i }}</li>
+  </ul>
+  {% endfor %}
+</div>

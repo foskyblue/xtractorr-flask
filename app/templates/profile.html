@@ -1,0 +1,139 @@
+{% extends "base2.html" %}
+
+{% block content %}
+<br />
+<br />
+<br />
+<div class="container">
+  <!-- <a href="/" class="btn btn-outline-success">Refresh</a> -->
+  <button type="button" name="button">Search by website(URL)</button>
+  <button type="button" name="button">Search by Keywords</button>
+  <br/>
+  <br/>
+  <div class="">
+    URL crawl upto level:&nbsp
+      <select name="depth">
+        <option selected> </option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <!-- <option value="11">11</option>
+        <option value="12">12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+        <option value="15">15</option>
+        <option value="16">16</option>
+        <option value="17">17</option>
+        <option value="18">18</option>
+        <option value="19">19</option>
+        <option value="20">20</option> -->
+        <!-- <option value="url_https">URL/https</option> -->
+        <!-- <option value="url_http">URL/http</option> -->
+      </select>
+      &nbsp
+      &nbsp
+      <!-- <form> -->
+      <label class="radio-inline">
+        <input type="radio" name="optradio" checked>&nbspCrawl same site
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="optradio">&nbspCrawl linked sites
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="optradio">&nbspCrawl same page only
+      </label>
+  <!-- </form> -->
+  </div>
+  <br/>
+  <form class="" action="/process" method="POST">
+    <!-- <div class="row">
+      <div class="col-6">
+        <textarea placeholder="Seperate Keywords/Emails by a comma ( , )" type="text" name="rawtext" rows="5" class="form-control" required="true"></textarea>
+        <br/>
+      </div>
+
+    </div> -->
+    <textarea placeholder="Seperate Keywords/Emails by a comma ( , )" type="text" name="rawtext" rows="5" class="form-control" required="true"></textarea>
+    <br />
+    <div class="form-group">
+      <!-- <label>Your Text</label> -->
+      <!-- <textarea placeholder="Seperate Keywords/Emails by a comma ( , )" type="text" name="rawtext" rows="5" class="form-control" required="true"></textarea>
+      <br/> -->
+      <!-- <div> -->
+        <select class="form-control" name="taskoption">
+          <option selected>Select Task</option>
+          <option value="email">Email</option>
+          <option value="phone">Phone Number</option>
+          <!-- <option value="url_https">URL/https</option> -->
+          <!-- <option value="url_http">URL/http</option> -->
+        </select>
+      <!-- </div> -->
+      <br/>
+      <button type="reset" class="btn btn-primary"><i class="fa fa-eraser"></i>Clear</button>
+      <button type="submit" class="btn btn-info"><i class="fa fa-database "></i>Search</button>
+    </div>
+  </form>
+</div>
+
+<div class="container">
+
+  <div class="d-md-flex row">
+    <div class="col-8 container-fluid">
+      <div class="row overflow-auto p-3 mb-3 mb-md-0 mr-md-3 bg-light" style="min-width: 260px; max-height: 250px;">
+        {% if results_count%}
+        <div class="col-1 border"> <b>#</b> <br />
+          <div class="border"></div>
+          {% for i in range(results_count) %}
+            {% print(i+1) %}<br />
+          {% endfor %}
+        </div>
+
+        <div class="col-5 border"> <b>Contact</b> <br />
+          <div class="border"></div>
+          {% for r in results %}
+            {% print(r) %}<br />
+          {% endfor %}
+        </div>
+        <div class="col-3 border"> <b>Page Title</b> <br />
+          <div class="border"></div>
+
+
+        </div>
+        <div class="col-3 border"> <b>Website</b> <br />
+          <div class="border"></div>
+
+
+
+
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="col">
+        <div class="">
+          <b>Statistics</b>
+        </div>
+
+        <div class="container has-text-centered">
+          <p><b>Domain Count:</b></p>
+          <p><b>Fetched Contacts:</b> </p>
+          <p><b>Pages Parsed:</b></p>
+          <p><b>Fetched Pages in Q:</b></p>
+          <p><b>URL in Queue</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+{% endblock %}

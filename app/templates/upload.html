@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4 p-5 bg-white shadow rounded-lg">
+    <h3 class="title">Upload File</h3>
+    <div class="box">
+      {% if mess == 'File uploaded successfully!'  %}
+      <a href="{{url_for('main.download')}}">
+        <button class="btn btn-default">Download</button>
+      </a>
+      {% endif %}
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('main.upload') }}">
+          <div class="">
+            <img src="static/upload_img.png" alt="" width="200" class="d-block mx-auto mb-4 rounded-pill">
+          </div>
+          {% with messages = get_flashed_messages() %}
+          {% if messages[0] == 'No selected file' %}
+              <div class="notification is-danger">
+                  {{ messages[0] }}
+              </div>
+          {% elif messages[0] == filename %}
+            <div class="">
+                {{ filename }}
+            </div>
+          {% else %}
+            <div class="notification is-success">
+                {{ messages[0] }}
+            </div>
+          {% endif %}
+          {% endwith %}
+          <div id="fileList"></div>
+          <script type="text/javascript">
+            updateList = function() {
+              var input = document.getElementById('file');
+              var output = document.getElementById('fileList');
+
+              output.innerHTML = '<ul>';
+              for (var i = 0; i < input.files.length; ++i) {
+                output.innerHTML += '<li>' + input.files.item(i).name + '</li>';
+              }
+              output.innerHTML += '</ul>';
+            }
+          </script>
+          <div class="selectFile">
+            <label for="fileUpload" class="btn btn-primary btn-block rounded-pill shadow">
+              <i class="fa fa-upload mr-2"></i>Browse for file ...
+              <input style="display: none;" id="fileUpload" name="file" type="file">
+            </label>
+            <input multiple onchange="javascript:updateList()" id="file" type="submit" value="Upload">
+          </div>
+          <p>File size limit : 10 MB</p>
+          <!-- <input type="file" name="file">
+          <input type="submit" value="Upload"> -->
+        </form>
+    </div>
+</div>
+{% endblock %}

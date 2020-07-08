@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4 p-5 bg-white shadow rounded-lg">
+    <h3 class="title">Download Sorted File</h3>
+    <div class="box">
+      <a href="{{url_for('main.download_file')}}">
+        <button class="btn btn-default">Download</button>
+      </a>
+
+</div>
+{% endblock %}
