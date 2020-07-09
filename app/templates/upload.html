@@ -13,7 +13,7 @@
       {% endif %}
         <form method="POST" enctype="multipart/form-data" action="{{ url_for('main.upload') }}">
           <div class="">
-            <img src="static/upload_img.png" alt="" width="200" class="d-block mx-auto mb-4 rounded-pill">
+            <img src="static/upload_img.png" alt="" height="100" width="200" class="d-block mx-auto mb-4 rounded-pill">
           </div>
           {% with messages = get_flashed_messages() %}
           {% if messages[0] == 'No selected file' %}
@@ -26,7 +26,8 @@
             </div>
           {% else %}
             <div class="notification is-success">
-                {{ messages[0] }}
+                {{ messages[0] }} <br>
+                uploaded sucessfully!
             </div>
           {% endif %}
           {% endwith %}
