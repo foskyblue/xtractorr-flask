@@ -29,9 +29,9 @@ def download():
     return render_template('download.html')
 
 
-@main.route('/se')
+@main.route('/sorted_emails')
 def download_file():
-    return send_file('se.xlsx', as_attachment=True, cache_timeout=0)
+    return send_file('sorted_emails.xlsx', as_attachment=True, cache_timeout=0)
 
 
 @main.route('/upload', methods=['GET', 'POST'])
@@ -49,17 +49,23 @@ def upload():
         # submit an empty part without filename
         if file.filename == '' or file.filename == None:
             flash('No selected file')
-            # return redirect(request.url)
+
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             flash(filename)
-            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            file.filename = 'uploaded_emails'
+
+            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], file.filename))
             flash('File uploaded successfully!')
             mess = 'File uploaded successfully!'
             # return send_file
             # return redirect(url_for('main.upload', filename=filename))
-            emails = read_file(filename)
-            domain_sorter(emails)
+            emails = read_file(file.filename)
+            emails = email_regex(str(emails))
+            emails_temp_list = []
+            for email in emails:
+                emails_temp_list.append(email[1:])
+            domain_sorter(emails_temp_list)
     return render_template('upload.html', mess=mess)
 
 
@@ -126,7 +132,7 @@ def get_res(choice):
 
 
 def read_file(filename):
-    f = open('app/'+filename,'r')
+    f = open('app/'+filename, encoding="utf8")
     emails = f.read().splitlines()
     f.close()
     return emails
@@ -139,7 +145,7 @@ def save_to_excel(domain_email_list):
     '''
 
 
-    workbook = xlsxwriter.Workbook('app/se.xlsx')
+    workbook = xlsxwriter.Workbook('app/sorted_emails.xlsx')
     worksheet = workbook.add_worksheet()
 
     # Start from the first cell.
