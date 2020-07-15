@@ -142,7 +142,7 @@ def exclude():
 
 
 
-    return render_template('sorter.html', domains=domains, domain_count=domain_count, emails_count=len(tt), all_emails=tt, checkbox_options=checkbox_options, all=all_emails)
+    return render_template('sorter.html', domains=domains, domain_count=domain_count, emails_count=len(tt), all_emails=tt, checkbox_options=checkbox_options)
 
 
 @main.route('/process', methods=['GET', 'POST'])
