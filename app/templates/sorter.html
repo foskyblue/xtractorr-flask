@@ -1,0 +1,233 @@
+{% extends "base2.html" %}
+
+{% block content %}
+
+<br />
+<br />
+
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
+
+
+<div style="width:80%; height:80%; margin: auto; border: 3px solid orange; overflow:scroll;" class="container">
+
+  <button class="tablink" onclick="openPage('Home', this, 'red')" id="defaultOpen">Paste text</button>
+  <button class="tablink" onclick="openPage('News', this, 'green')">Upload .txt file</button>
+
+  <div id="News" class="tabcontent">
+    <!-- <h3>Home</h3>
+    <p>Home is where the heart is..</p> -->
+
+    <div class="bg-white shadow rounded-lg">
+        <!-- <h3 class="title">Upload File</h3> -->
+        <div class="box">
+          {% if mess == 'File uploaded successfully!'  %}
+          <a href="{{url_for('main.download')}}">
+            <button class="btn btn-default">Download</button>
+          </a>
+          {% endif %}
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('main.sorter') }}">
+              <!-- <div class="" height="3">
+                <img src="static/upload_img.png" alt="" class="d-block mx-auto mb-4 rounded-pill">
+              </div> -->
+              {% with messages = get_flashed_messages() %}
+              {% if messages[0] == 'No selected file' %}
+                <div class="notification is-danger">
+                  {{ messages[0] }}
+                </div>
+              {% elif messages[0] == filename %}
+                <div class="">
+                    {{ filename }}
+                </div>
+              {% else %}
+                <div class="notification is-success">
+                    {{ messages[0] }} <br>
+                    uploaded sucessfully!
+                </div>
+              {% endif %}
+              {% endwith %}
+              <div id="fileList"></div>
+              <script type="text/javascript">
+                updateList = function() {
+                  var input = document.getElementById('file');
+                  var output = document.getElementById('fileList');
+
+                  output.innerHTML = '<ul>';
+                  for (var i = 0; i < input.files.length; ++i) {
+                    output.innerHTML += '<li>' + input.files.item(i).name + '</li>';
+                  }
+                  output.innerHTML += '</ul>';
+                }
+              </script>
+
+              <div class="selectFile">
+                <label for="fileUpload" class="btn btn-primary btn-block rounded-pill shadow">
+                  <i class="fa fa-upload mr-2"></i>Browse for file ...
+                  <input style="display: none;" id="fileUpload" name="file" type="file">
+                </label>
+                <input multiple onchange="javascript:updateList()" id="file" type="submit" value="Upload">
+              </div>
+              <p>File size limit : 10 MB</p>
+              <!-- <input type="file" name="file">
+              <input type="submit" value="Upload"> -->
+            </form>
+        </div>
+    </div>
+
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+  </div>
+
+  <div id="Home" class="tabcontent">
+
+    <!-- <h3>News</h3>
+    <p>Some news this fine day!</p> -->
+    <form class="" action="{{ url_for('main.sorter') }}" method="POST">
+      <!-- <div class="row">
+        <div class="col-6">
+          <textarea placeholder="Seperate Keywords/Emails by a comma ( , )" type="text" name="rawtext" rows="5" class="form-control" required="true"></textarea>
+          <br/>
+        </div>
+
+      </div> -->
+      <textarea placeholder="Paste file contents" type="text" name="rawtext" rows="5" class="form-control" required="true"></textarea>
+      <br />
+      <div class="form-group">
+
+        <br/>
+        <button type="reset" class="btn btn-primary"><i class="fa fa-eraser"></i>Clear</button>
+        <button type="submit" class="btn btn-info"><i class="fa fa-database "></i>Extract</button>
+        <br/>
+        <br/>
+
+      </div>
+    </form>
+
+  </div>
+
+
+
+
+  <script>
+
+    function CopyToClipboard(containerid) {
+      if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById(containerid));
+        range.select().createTextRange();
+        document.execCommand("copy");
+      } else if (window.getSelection) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById(containerid));
+        window.getSelection().addRange(range);
+        document.execCommand("copy");
+        alert("Text copied!!!")
+      }
+    }
+
+    function openPage(pageName,elmnt,color) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablink");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].style.backgroundColor = "";
+      }
+      document.getElementById(pageName).style.display = "block";
+      elmnt.style.backgroundColor = color;
+    }
+
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
+  </script>
+
+</div>
+
+<br />
+<div style="width:80%; height:80%; margin: auto; border: 3px solid #73AD21; overflow:scroll;" class="container">
+
+  <div class="d-md-flex row">
+    <div class="col-7 container-fluid">
+      <div class="row overflow-auto p-3 mb-3 mb-md-0 mr-md-3 bg-light" style="min-width: 260px; max-height: 250px;">
+        {% if emails_count %}
+        <div class="col-2 border"> <b>#</b> <br />
+          <div class="border"></div>
+          {% for i in range(emails_count) %}
+            {% print(i+1) %}<br />
+          {% endfor %}
+        </div>
+
+        <div class="col-10 border"> <b>Contact</b> <br />
+          <div class="border"></div>
+          <div id="copy_text" class="">
+          {% for email in all_emails %}
+            {% print(email) %}<br />
+          {% endfor %}
+          </div>
+        </div>
+
+      </div>
+      <!-- <br /> -->
+      <!-- <input type="text" value="Hello World" id="myInput"> -->
+      <button onclick="CopyToClipboard('copy_text')" style="background-color:orange;margin-left:auto;margin-right:auto;display:block;margin-bottom:0%" align="center" type="button" onclick="myFunction()">Copy</button>
+
+    </div>
+    <div class="col-5">
+      <div class="col">
+        <div class="">
+          <b>Domain Count: {% print(domain_count) %} </b>
+        </div>
+
+        <div class="container">
+          <!-- <p><b>Domain Count:</b></p>
+          <p><b>Fetched Contacts:</b> </p>
+          <p><b>Pages Parsed:</b></p>
+          <p><b>Fetched Pages in Q:</b></p>
+          <p><b>URL in Queue</b></p> -->
+          <form method="POST" style="max-height:225px; margin: auto; border: 0px solid #73AD21; overflow:scroll;" action="{{ url_for('main.exclude') }}">
+            <!-- <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+              <label for="vehicle1"> I have a bike</label><br>
+            <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+              <label for="vehicle2"> I have a car</label><br>
+            <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
+              <label for="vehicle3"> I have a boat</label><br>
+
+            <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+              <label for="vehicle1"> I have a bike</label><br>
+            <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+              <label for="vehicle2"> I have a car</label><br>
+            <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
+              <label for="vehicle3"> I have a boat</label><br>
+            <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+              <label for="vehicle1"> I have a bike</label><br>
+            <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+              <label for="vehicle2"> I have a car</label><br>
+            <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
+              <label for="vehicle3"> I have a boat</label><br> -->
+              <fieldset>
+                {% for domain in domains %}
+                <!-- <legend>What is Your Favorite Pet?</legend> -->
+                <label><input type="checkbox" name="check" value="{% print(domain) %}">&nbsp{% print(domain) %}</label>
+                <br>
+                {% endfor %}
+              </fieldset>
+
+        </div>
+            <input style="background-color:orange;margin-left:auto;margin-right:auto;display:block;margin-bottom:0%" type="submit" value="Submit">
+          </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- <legend>What is Your Favorite Pet?</legend> -->
+    {% print(checkbox_options) %}
+
+</div>
+
+
+{% endblock %}
