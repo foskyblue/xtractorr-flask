@@ -14,6 +14,7 @@ main = Blueprint('main', __name__)
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
+
 @main.route('/')
 def index():
     return render_template('index.html')
@@ -32,6 +33,9 @@ def download():
 @main.route('/sorted_emails')
 def download_file():
     return send_file('sorted_emails.xlsx', as_attachment=True, cache_timeout=0)
+
+
+
 
 
 @main.route('/upload', methods=['GET', 'POST'])
@@ -73,6 +77,72 @@ def upload():
 @login_required
 def profile():
     return render_template('profile.html', name = current_user.name)
+
+
+@main.route('/sorter', methods=['GET', 'POST'])
+@login_required
+def sorter():
+
+    domain_email_dict = {}
+    domains = []
+    domain_count = 0
+    all_emails = []
+    if request.method == 'POST':
+        # choice = request.form['taskoption']
+        rawtext = request.form['rawtext']
+        # rawtext = requests.get(rawtext).text  #urllib2.urlopen(rawtext)
+
+        emails = email_regex(rawtext)
+
+        domain_email_dict = domain_sorter(emails)
+
+        domains = sorted(domain_email_dict.keys())
+        domain_count = len(domains)
+
+        for key in domain_email_dict.keys():
+            for email in domain_email_dict[key]:
+                all_emails.append(email)
+
+        save_to_txt(all_emails, domains, domain_count, len(all_emails),)
+
+
+    return render_template('sorter.html', domains=domains, domain_count=domain_count, emails_count=len(all_emails), all_emails=all_emails)
+    # return render_template('sorter.html')
+
+
+@main.route('/exclude', methods=['GET', 'POST'])
+@login_required
+def exclude():
+
+    all_emails = read_file('saved_emails.txt')
+    domains = read_file('saved_emails_domains.txt')
+    domain_count = read_file('saved_domain_count.txt')
+    emails_count = read_file('saved_email_count.txt')
+    domain_count = int(domain_count[0])
+    emails_count = int(emails_count[0])
+    checkbox_options = []
+    tt = []
+
+    if request.method == 'POST':
+
+        checkbox_options.append(request.form.getlist('check'))
+        checkbox_options = checkbox_options[0]
+
+    for option in checkbox_options:
+
+        # if option in all_emails:
+        for e in all_emails:
+            if option != e.split('@')[1]:
+                # all_emails.remove(e)
+                tt.append(e)
+                emails_count -= 1
+
+        domain_count -= 1
+        domains.remove(option)
+
+
+
+    return render_template('sorter.html', domains=domains, domain_count=domain_count, emails_count=len(tt), all_emails=tt, checkbox_options=checkbox_options, all=all_emails)
 
 
 @main.route('/process', methods=['GET', 'POST'])
@@ -138,6 +208,7 @@ def read_file(filename):
     return emails
 
 
+
 def save_to_excel(domain_email_list):
 
     '''
@@ -173,6 +244,22 @@ def save_to_excel(domain_email_list):
     workbook.close()
     # return workbook
 
+# domains=domains, domain_count=domain_count, emails_count=len(all_emails), all_emails=all_emails
+def save_to_txt(emails, domains, domain_count, email_count):
+    with open('app/saved_emails.txt', "w") as myfile:
+        for email in emails:
+                myfile.write("%s\n" % email)
+
+    with open('app/saved_emails_domains.txt', "w") as myfile2:
+        for domain in domains:
+                myfile2.write("%s\n" % domain)
+
+    with open('app/saved_domain_count.txt', "w") as myfile3:
+        myfile3.write("%s\n" % domain_count)
+
+    with open('app/saved_email_count.txt', "w") as myfile4:
+        myfile4.write("%s\n" % email_count)
+
 
 def domain_sorter(emails):
     '''
@@ -194,4 +281,7 @@ def domain_sorter(emails):
     for email in emails:
         domain_email_list[email.split('@')[1]].append(email)
 
-    save_to_excel(domain_email_list)
+    # if caller == 'upload':
+    #     save_to_excel(domain_email_list)
+    # else:
+    return domain_email_list
