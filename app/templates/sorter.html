@@ -4,7 +4,6 @@
 
 <br />
 <br />
-
 <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
 
 
@@ -85,13 +84,6 @@
     <!-- <h3>News</h3>
     <p>Some news this fine day!</p> -->
     <form class="" action="{{ url_for('main.sorter') }}" method="POST">
-      <!-- <div class="row">
-        <div class="col-6">
-          <textarea placeholder="Seperate Keywords/Emails by a comma ( , )" type="text" name="rawtext" rows="5" class="form-control" required="true"></textarea>
-          <br/>
-        </div>
-
-      </div> -->
       <textarea placeholder="Paste file contents" type="text" name="rawtext" rows="5" class="form-control" required="true"></textarea>
       <br />
       <div class="form-group">
@@ -110,7 +102,24 @@
 
 
 
-  <script>
+  <script type="text/javascript">
+
+    function myFunction2() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("myUL");
+        li = ul.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    }
 
     function CopyToClipboard(containerid) {
       if (document.selection) {
@@ -182,42 +191,23 @@
           <b>Domain Count: {% print(domain_count) %} </b>
         </div>
 
-        <div class="container">
-          <!-- <p><b>Domain Count:</b></p>
-          <p><b>Fetched Contacts:</b> </p>
-          <p><b>Pages Parsed:</b></p>
-          <p><b>Fetched Pages in Q:</b></p>
-          <p><b>URL in Queue</b></p> -->
+        <div class="container chat-users">
           <form method="POST" style="max-height:225px; margin: auto; border: 0px solid #73AD21; overflow:scroll;" action="{{ url_for('main.exclude') }}">
-            <!-- <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-              <label for="vehicle1"> I have a bike</label><br>
-            <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
-              <label for="vehicle2"> I have a car</label><br>
-            <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
-              <label for="vehicle3"> I have a boat</label><br>
+            <fieldset>
 
-            <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-              <label for="vehicle1"> I have a bike</label><br>
-            <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
-              <label for="vehicle2"> I have a car</label><br>
-            <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
-              <label for="vehicle3"> I have a boat</label><br>
-            <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-              <label for="vehicle1"> I have a bike</label><br>
-            <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
-              <label for="vehicle2"> I have a car</label><br>
-            <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
-              <label for="vehicle3"> I have a boat</label><br> -->
-              <fieldset>
+              <!-- <legend>What is Your Favorite Pet?</legend> -->
+              <ul id="myUL">
                 {% for domain in domains %}
-                <!-- <legend>What is Your Favorite Pet?</legend> -->
-                <label><input type="checkbox" name="check" value="{% print(domain) %}">&nbsp{% print(domain) %}</label>
-                <br>
+                <li><a href="#"><input class="name" type="checkbox" name="check" value="{% print(domain) %}">&nbsp{% print(domain) %}</a></li>
+                <!-- <br> -->
                 {% endfor %}
-              </fieldset>
+              </ul>
+
+            </fieldset>
 
         </div>
-            <input style="background-color:orange;margin-left:auto;margin-right:auto;display:block;margin-bottom:0%" type="submit" value="Submit">
+          <input type="text" id="myInput" onkeyup="myFunction2()" placeholder="Search for domain.." title="Type in a domain">
+          <input style="background-color:orange;" type="submit" value="Submit">
           </form>
       </div>
     </div>
