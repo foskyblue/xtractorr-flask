@@ -103,7 +103,7 @@ def sorter():
             for email in domain_email_dict[key]:
                 all_emails.append(email)
 
-        save_to_txt(all_emails, domains, domain_count, len(all_emails),)
+        save_to_txt(all_emails, domains, domain_count, len(all_emails))
 
 
     return render_template('sorter.html', domains=domains, domain_count=domain_count, emails_count=len(all_emails), all_emails=all_emails)
@@ -121,28 +121,32 @@ def exclude():
     domain_count = int(domain_count[0])
     emails_count = int(emails_count[0])
     checkbox_options = []
-    tt = []
+    all_emails_temp = []
+    all_emails = domain_sorter(all_emails)
 
     if request.method == 'POST':
 
         checkbox_options.append(request.form.getlist('check'))
         checkbox_options = checkbox_options[0]
 
-    for option in checkbox_options:
+        for option in checkbox_options:
 
-        # if option in all_emails:
-        for e in all_emails:
-            if option != e.split('@')[1]:
-                # all_emails.remove(e)
-                tt.append(e)
-                emails_count -= 1
+            if option in all_emails.keys():
 
-        domain_count -= 1
-        domains.remove(option)
+                del all_emails[option]
+                domains.remove(option)
+                domain_count -= 1
 
 
+        for key in all_emails.keys():
 
-    return render_template('sorter.html', domains=domains, domain_count=domain_count, emails_count=len(tt), all_emails=tt, checkbox_options=checkbox_options)
+            for email in all_emails[key]:
+
+                all_emails_temp.append(email)
+
+        save_to_txt(all_emails_temp, domains, domain_count, len(all_emails))
+
+    return render_template('sorter.html', domains=domains, domain_count=domain_count, emails_count=len(all_emails_temp), all_emails=all_emails_temp, checkbox_options=checkbox_options)
 
 
 @main.route('/process', methods=['GET', 'POST'])
