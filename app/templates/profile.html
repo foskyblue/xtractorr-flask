@@ -4,7 +4,7 @@
 <br />
 <br />
 <br />
-<div class="container">
+<div style="width:80%; height:80%; margin: auto; border: 3px solid orange; overflow:scroll;" class="container">
   <!-- <a href="/" class="btn btn-outline-success">Refresh</a> -->
   <button type="button" name="button">Search by website(URL)</button>
   <button type="button" name="button">Search by Keywords</button>
@@ -41,13 +41,13 @@
       &nbsp
       <!-- <form> -->
       <label class="radio-inline">
-        <input type="radio" name="optradio" checked>&nbspCrawl same site
+        <input type="radio" name="crawl_same_site" checked>&nbspCrawl same site
       </label>
       <label class="radio-inline">
-        <input type="radio" name="optradio">&nbspCrawl linked sites
+        <input type="radio" name="crawl_linked_site">&nbspCrawl linked sites
       </label>
       <label class="radio-inline">
-        <input type="radio" name="optradio">&nbspCrawl same page only
+        <input type="radio" name="crawl_same_page">&nbspCrawl same page only
       </label>
   <!-- </form> -->
   </div>
@@ -81,40 +81,58 @@
     </div>
   </form>
 </div>
+<script type="text/javascript">
 
-<div class="container">
+  function CopyToClipboard(containerid) {
+    if (document.selection) {
+      var range = document.body.createTextRange();
+      range.moveToElementText(document.getElementById(containerid));
+      range.select().createTextRange();
+      document.execCommand("copy");
+    } else if (window.getSelection) {
+      var range = document.createRange();
+      range.selectNode(document.getElementById(containerid));
+      window.getSelection().addRange(range);
+      document.execCommand("copy");
+      alert("Text copied!!!")
+    }
+  }
+
+</script>
+<br />
+<div style="width:80%; height:80%; margin: auto; border: 3px solid #73AD21; overflow:scroll;" class="container">
 
   <div class="d-md-flex row">
     <div class="col-8 container-fluid">
       <div class="row overflow-auto p-3 mb-3 mb-md-0 mr-md-3 bg-light" style="min-width: 260px; max-height: 250px;">
         {% if results_count%}
-        <div class="col-1 border"> <b>#</b> <br />
+        <div style="white-space: nowrap; width: 10px; font-size: x-small; overflow: hidden; text-overflow: ellipsis; border: 1px solid #000000;" class="col-1 border"> <b>#</b> <br />
           <div class="border"></div>
           {% for i in range(results_count) %}
             {% print(i+1) %}<br />
           {% endfor %}
         </div>
 
-        <div class="col-5 border"> <b>Contact</b> <br />
+        <div id="copy_text" style="white-space: nowrap; width: 10px; font-size: x-small; overflow: hidden; text-overflow: ellipsis; border: 1px solid #000000;" class="col-5 border"> <b>Contact</b> <br />
           <div class="border"></div>
           {% for r in results %}
             {% print(r) %}<br />
           {% endfor %}
-        </div>
-        <div class="col-3 border"> <b>Page Title</b> <br />
+          </div>
+        <div style="white-space: nowrap; width: 10px; font-size: x-small; overflow: hidden; text-overflow: ellipsis; border: 1px solid #000000;" class="col-3 border"> <b>Page Title</b> <br />
           <div class="border"></div>
-
-
+          {% for r in page_title %}
+            {% print(r) %}<br />
+          {% endfor %}
         </div>
-        <div class="col-3 border"> <b>Website</b> <br />
+        <div style="white-space: nowrap; width: 10px; font-size: x-small; overflow: hidden; text-overflow: ellipsis; border: 1px solid #000000;" class="col-3 border"> <b>Website</b> <br />
           <div class="border"></div>
-
-
-
-
+          {% for r in webpage_link %}
+            {% print(r) %}<br />
+          {% endfor %}
         </div>
-        {% endif %}
       </div>
+      <button onclick="CopyToClipboard('copy_text')" style="background-color:orange;margin-left:auto;margin-right:auto;display:block;margin-bottom:0%" align="center" type="button" onclick="myFunction()">Copy</button>
     </div>
     <div class="col-4">
       <div class="col">
@@ -123,14 +141,15 @@
         </div>
 
         <div class="container has-text-centered">
-          <p><b>Domain Count:</b></p>
-          <p><b>Fetched Contacts:</b> </p>
-          <p><b>Pages Parsed:</b></p>
-          <p><b>Fetched Pages in Q:</b></p>
-          <p><b>URL in Queue</b></p>
+          <p><b>Domain Count:&nbsp{% print(domain_count) %}</b></p>
+          <p><b>Fetched Contacts:&nbsp{% print(results_count) %}</b> </p>
+          <p><b>Pages Parsed:&nbsp{% print(parsed_pages) %}</b></p>
+          <p><b>Fetched Pages in Q:&nbsp{% print(fetched_pages_in_q) %}</b></p>
+          <p><b>URL in Queue:&nbsp{% print(rawtext) %}</b></p>
         </div>
       </div>
     </div>
+    {% endif %}
   </div>
 
 
