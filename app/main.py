@@ -1,3 +1,6 @@
+# https://www.wpbeginner.com/beginners-guide/how-to-setup-a-professional-email-address-with-gmail-and-google-apps/
+# https://en.wikipedia.org/wiki/Email_address?
+
 from flask import Blueprint, render_template, request, redirect, url_for,flash, send_file
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -9,6 +12,7 @@ import os
 import pandas as pd
 import xlsxwriter
 import math
+from bs4 import BeautifulSoup
 
 main = Blueprint('main', __name__)
 
@@ -20,9 +24,14 @@ def index():
     return render_template('index.html')
 
 
+@main.app_errorhandler(400)
+def error_page(e):
+    return render_template('error_pages/400.html'), 400
+
+
 @main.app_errorhandler(404)
 def error_page(e):
-    return render_template('404.html'), 404
+    return render_template('error_pages/404.html'), 404
 
 
 @main.route('/downloading')
@@ -33,9 +42,6 @@ def download():
 @main.route('/sorted_emails')
 def download_file():
     return send_file('sorted_emails.xlsx', as_attachment=True, cache_timeout=0)
-
-
-
 
 
 @main.route('/upload', methods=['GET', 'POST'])
@@ -87,7 +93,47 @@ def sorter():
     domains = []
     domain_count = 0
     all_emails = []
+    # emails = ''
     if request.method == 'POST':
+
+        if 'form1' in request.form:
+
+            if 'file' not in request.files:
+                flash('No file part')
+                return redirect(request.url)
+            file = request.files['file']
+            # if user does not select file, browser also
+            # submit an empty part without filename
+            if file.filename == '' or file.filename == None:
+                flash('No selected file')
+
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                flash(filename)
+                file.filename = 'uploaded_emails'
+
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], file.filename))
+                flash('File uploaded successfully!')
+                mess = 'File uploaded successfully!'
+                # return send_file
+                # return redirect(url_for('main.upload', filename=filename))
+                emails = read_file(file.filename)
+                emails = email_regex(str(emails))
+                emails_temp_list = []
+                for email in emails:
+                    emails_temp_list.append(email[1:])
+                # domain_sorter(emails_temp_list)
+                domain_email_dict = domain_sorter(emails_temp_list)
+
+                domains = sorted(domain_email_dict.keys())
+                domain_count = len(domains)
+
+                for key in domain_email_dict.keys():
+                    for email in domain_email_dict[key]:
+                        all_emails.append(email)
+
+                save_to_txt(all_emails, domains, domain_count, len(all_emails))
+
         # choice = request.form['taskoption']
         rawtext = request.form['rawtext']
         # rawtext = requests.get(rawtext).text  #urllib2.urlopen(rawtext)
@@ -153,31 +199,75 @@ def exclude():
 def process():
     results = []
     results_count = 0
+    rawtext = []
+    parsed_pages = 0
+    domain_count = 0
+    page_title = []
+    webpage_link = []
+    fetched_pages_in_q = 0
     if request.method == 'POST':
         choice = request.form['taskoption']
         rawtext = request.form['rawtext']
-        rawtext = requests.get(rawtext).text  #urllib2.urlopen(rawtext)
+        # rawtext = requests.get(rawtext).text  #urllib2.urlopen(rawtext)
+        rawtext = rawtext.split(',') # 1
+        parsed_pages += len(rawtext)
         if choice == 'email':
             # rawtext = request.form['rawtext']
-            results = email_regex(rawtext)
+            # depth = 0
+            for web_link in rawtext:
+
+                # depth += 1
+                web_link_q = []
+                depth = 0
+                web_link_q.append(web_link)
+                fetched_pages_in_q += 1
+                weblink_cache = []
+                while len(web_link_q) != 0 and depth < 15:
+                    wll = web_link_q.pop(0)
+                    fetched_pages_in_q += 1
+                    parsed_pages += 1
+                    weblink_cache.append(wll)
+
+                    # proxySetting = {'https' : <host>:<port>}
+                    headers = {'User-Agent': 'Mozilla/5.0'}
+                    page = requests.get(wll, headers=headers, verify=False) # Sucuri WebSite Firewall - Access Denied python request solution
+                    # print(page)
+                    soup = BeautifulSoup(page.text, 'html.parser')
+
+                    with open('app/html_contents.html', 'w', encoding='utf-8') as f:
+                        f.write(str(soup))
+
+                    wl = read_file('html_contents.html')
+
+                    # wl = requests.get(wl).text
+
+                    for link in url_https_regex(str(wl)):
+                        if link not in weblink_cache:
+                            web_link_q.append(link)
+
+                    for link in url_http_regex(str(wl)):
+                        if link not in weblink_cache:
+                            web_link_q.append(link)
+
+                    for email in email_regex(str(wl)):
+                        if email not in results:
+                            results.append(email)
+                            webpage_link.append(wll)
+                            page_title.append(soup.find('title').text)
+
+                    domain_count = domain_sorter(results)
+                    depth += 1
+                    fetched_pages_in_q += len(web_link_q)
             # results_count = len(results)
         elif choice == 'phone':
             # rawtext = request.form['rawtext']
             results = phone_regex(rawtext)
-            # results_count = len(results)
-        # elif choice == 'url_https':
-        #     # rawtext = request.form['rawtext']
-        #     results = url_https_regex(rawtext)
-        #     # results_count = len(results)
-        # elif choice == 'url_http':
-        #     # rawtext = request.form['rawtext']
-        #     results = url_http(rawtext)
-            # results_count = len(results)
-        results_count = len(results)
-    return render_template('profile.html', results=results, results_count=results_count)
+
+    return render_template('profile.html', rawtext=len(rawtext), results=results, fetched_pages_in_q=fetched_pages_in_q, webpage_link=webpage_link, page_title=page_title, results_count=len(results), parsed_pages=parsed_pages, domain_count=len(domain_count))
 
 
 def email_regex(file):
+
     return re.compile(r'[\w\.-]+@[\w\.-]+').findall(file)
 
 
@@ -186,11 +276,11 @@ def phone_regex(file):
 
 
 def url_https_regex(file):
-    return re.compile(r'https?://www\.?\w+\.\w+').findall(file)
+    return re.compile(r'https?://www\.?\w+\.\w+.\w+').findall(file)
 
 
 def url_http_regex(file):
-    return re.compile(r'http?://www\.?\w+\.\w+').findall(file)
+    return re.compile(r'http?://www\.?\w+\.\w+.\w+').findall(file)
 
 
 def allowed_file(filename):
@@ -210,7 +300,6 @@ def read_file(filename):
     emails = f.read().splitlines()
     f.close()
     return emails
-
 
 
 def save_to_excel(domain_email_list):
@@ -250,18 +339,18 @@ def save_to_excel(domain_email_list):
 
 # domains=domains, domain_count=domain_count, emails_count=len(all_emails), all_emails=all_emails
 def save_to_txt(emails, domains, domain_count, email_count):
-    with open('app/saved_emails.txt', "w") as myfile:
+    with open('app/saved_emails.txt', "w", encoding='utf-8') as myfile:
         for email in emails:
                 myfile.write("%s\n" % email)
 
-    with open('app/saved_emails_domains.txt', "w") as myfile2:
+    with open('app/saved_emails_domains.txt', "w", encoding='utf-8') as myfile2:
         for domain in domains:
                 myfile2.write("%s\n" % domain)
 
-    with open('app/saved_domain_count.txt', "w") as myfile3:
+    with open('app/saved_domain_count.txt', "w", encoding='utf-8') as myfile3:
         myfile3.write("%s\n" % domain_count)
 
-    with open('app/saved_email_count.txt', "w") as myfile4:
+    with open('app/saved_email_count.txt', "w", encoding='utf-8') as myfile4:
         myfile4.write("%s\n" % email_count)
 
 
