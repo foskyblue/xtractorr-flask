@@ -8,10 +8,22 @@
 
 ## Installation <a name="installation"></a>
 
-To run this project, you can clone this repository onto your local machine and run using jupyter notebook for best result display. The version of python used is python 3.*. 
+To run this project, you can clone this repository onto your local machine. Use command prompt to navigate to cloned folder, run the following commands:
+
+FOR WINDOWS
+
+1. *set FLASK_APP=app* 
+2. *set FLASK_DEUBG=1 (Optional)* 
+3. *flask run*
+
+Use below details to sign in:
+
+1. Username/Email: test@mail.com
+2. Password: test
+
+The version of Python used is python 3.7, Flask version 1.1.2 
 
 You can refer to the requirements.txt file to find dependencies.
-
 
 
 ## Project Motivation<a name="motivation"></a>
@@ -24,5 +36,7 @@ A friend of mine needed a free customized email extractor to enable to scrape th
 This project contains 4 Python files, an sqlite3 file for database, multiple template html files for page rendering, image and css files.    
 
 Also, the project includes configuration files for hosting on a cloud service (I used Heroku free service). 
+
+There is a lot of room for improvements on this project.
 
 
