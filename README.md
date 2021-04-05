@@ -16,6 +16,12 @@ FOR WINDOWS
 2. *set FLASK_DEUBG=1 (Optional)* 
 3. *flask run*
 
+LINUX & MAC:
+
+1. *export FLASK_APP=app* 
+2. *export FLASK_DEUBG=1 (Optional)* 
+3. *flask run*
+
 Use below details to sign in:
 
 1. Username/Email: test@mail.com
